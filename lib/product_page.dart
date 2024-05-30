@@ -1,4 +1,7 @@
+// product_page.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'cart_model.dart';
 
 class ProductPage extends StatefulWidget {
   @override
@@ -6,8 +9,12 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
-  final List<String> products = ["Product 1", "Product 2", "Product 3", "Product 4"];
-  final List<String> cart = [];
+  final List<Product> products = [
+    Product(name: "Product 1", price: 10),
+    Product(name: "Product 2", price: 20),
+    Product(name: "Product 3", price: 30),
+    Product(name: "Product 4", price: 40),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -24,18 +31,62 @@ class _ProductPageState extends State<ProductPage> {
       body: ListView.builder(
         itemCount: products.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(products[index]),
-            trailing: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  cart.add(products[index]);
-                });
-              },
-              child: Text('Add to Cart'),
-            ),
-          );
+          return ProductListItem(product: products[index]);
         },
+      ),
+    );
+  }
+}
+
+class Product {
+  final String name;
+  final int price;
+  int quantity;
+
+  Product({required this.name, required this.price, this.quantity = 0});
+}
+
+class ProductListItem extends StatelessWidget {
+  final Product product;
+
+  ProductListItem({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = Provider.of<CartModel>(context);
+
+    return ListTile(
+      title: Text(product.name),
+      subtitle: Text('\$${product.price}'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.remove),
+            onPressed: () {
+              cart.remove(product);
+            },
+          ),
+          Text(product.quantity.toString()),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              cart.addToCart(product);
+            },
+          ),
+          ElevatedButton(
+            onPressed: () {
+              cart.addToCart(product);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${product.name} added to cart!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: Text('Add to Cart'),
+          ),
+        ],
       ),
     );
   }
