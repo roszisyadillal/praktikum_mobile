@@ -1,4 +1,3 @@
-// cart_model.dart
 import 'package:flutter/material.dart';
 import 'product_page.dart';
 
@@ -23,6 +22,12 @@ class CartModel extends ChangeNotifier {
       }
       notifyListeners();
     }
+  }
+
+  void removeFromCart(Product product) {
+    product.quantity = 0;
+    _cart.remove(product);
+    notifyListeners();
   }
 
   double getTotalPrice() {
